@@ -28,11 +28,12 @@ function drawBalloon(x, y) {
 };
 
 function floatUp(x, y) {
-  if (y > 200) {
-    y -= 5;
-    var float = setInterval(function() {draw(x, y)}, 100);
-  } else {
-    clearInterval(float);
+  if (y > 250) {
+    y -= 2;
+    droppedAtX = x;
+    droppedAtY = y;
+    draw(x, y);
+    setTimeout(function() {floatUp(x, y)}, 10);
   }
 }
 
@@ -62,11 +63,12 @@ canvas.addEventListener("click", function(e) {
     droppedAtX = mouseX;
     droppedAtY = mouseY;
     holding = false;
-    // floatUp(droppedAtX, droppedAtY);
+    floatUp(droppedAtX, droppedAtY);
   } else {
     if ((mouseX > (droppedAtX - 20)) && (mouseX < (droppedAtX + 20)) && (mouseY < (droppedAtY + 20)) && (mouseY > (droppedAtY - 20))) {
       console.log("holding");
       holding = true;
+      draw(mouseX, mouseY);
     } else {
       console.log("not the string");
     }
