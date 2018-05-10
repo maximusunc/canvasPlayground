@@ -2,32 +2,75 @@ const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+var holding = false;
+var mouseX = canvas.width/2;
+var mouseY = canvas.height/1.5;
+var mouseIn = false;
+var droppedAtX = mouseX;
+var droppedAtY = mouseY;
 
-var x = canvas.width;
-var y = canvas.height;
-
-function balloon() {
+function draw(x, y) {
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawBalloon(x, y);
+};
+
+function drawBalloon(x, y) {
   ctx.beginPath();
   ctx.fillStyle = "red";
-  ctx.arc(x/2,y/2,50,0,(2*Math.PI));
+  ctx.arc(x,y-200,50,0,(2*Math.PI));
   ctx.fill();
   
   ctx.beginPath();
   ctx.strokeStyle = "black";
-  ctx.moveTo(x/2,y/2+50);
-  ctx.bezierCurveTo(x/2-20,y/2+75,x/2+20,y/2+125,x/2,y/2+150);
+  ctx.moveTo(x,y-150);
+  ctx.bezierCurveTo(x-20,y-125,x+20,y-75,x,y);
   ctx.stroke();
+};
 
-  
-  if (y < 100) {
-    console.log("reached the top");
-  } else {
+function floatUp(x, y) {
+  if (y > 200) {
     y -= 5;
-    requestAnimationFrame(balloon);
+    var float = setInterval(function() {draw(x, y)}, 100);
+  } else {
+    clearInterval(float);
+  }
+}
+
+function getMousePos(canvas, e) {
+  return {
+    x: e.clientX,
+    y: e.clientY
   };
 };
 
-balloon();
+canvas.addEventListener("mousemove", function(e) {
+  var mousePos = getMousePos(canvas, e);
+  mouseX = mousePos.x;
+  mouseY = mousePos.y;
+  if (holding) {
+    draw(mouseX, mouseY);
+  };
+});
 
+canvas.addEventListener("mouseout", function(e) {
+  window.cancelAnimationFrame(draw);
+});
 
+canvas.addEventListener("click", function(e) {
+  if (holding) {
+    console.log("let go");
+    droppedAtX = mouseX;
+    droppedAtY = mouseY;
+    holding = false;
+    // floatUp(droppedAtX, droppedAtY);
+  } else {
+    if ((mouseX > (droppedAtX - 20)) && (mouseX < (droppedAtX + 20)) && (mouseY < (droppedAtY + 20)) && (mouseY > (droppedAtY - 20))) {
+      console.log("holding");
+      holding = true;
+    } else {
+      console.log("not the string");
+    }
+  }
+});
+
+draw(mouseX, mouseY);
